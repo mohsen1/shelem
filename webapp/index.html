@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.1/angular.min.js"></script>
+  <meta charset="utf-8">
+  <title>Shelem Tracker</title>
+  <style type="text/css">
+    html,
+    body {
+      font-family: sans-serif;
+      padding: 0;
+      margin: 0;
+      height: 100vh;
+    }
+    .shelem {
+      width: 100vw;
+      height: 100vh;
+    }
+    .shelem header {
+      display: flex;
+      background: gray;
+      color: white;
+      padding: .2em;
+    }
+    .shelem header > div {
+      flex: 1;
+      text-align: center;
+    }
+    .shelem .rounds {
+      display: block;
+    }
+    .shelem .rounds .round {
+      display: flex;
+      padding: .3em;
+    }
+    .shelem .rounds .round div {
+      flex: 1;
+      text-align: center;
+    }
+    .shelem .calls,
+    .shelem .results {
+      display: flex;
+    }
+    .shelem .calls form,
+    .shelem .results form {
+      flex: 1;
+      display: flex;
+    }
+    .shelem .calls form input,
+    .shelem .results form input,
+    .shelem .calls form .called,
+    .shelem .results form .called {
+      text-align: center;
+      display: block;
+      width: 100%;
+      padding: .5em;
+    }
+    .shelem footer {
+      background: #eee;
+      text-align: center;
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+    }
+    .shelem footer .teams {
+      padding: .3em;
+      display: flex;
+    }
+    .shelem footer .teams div {
+      flex: 1;
+    }
+  </style>
+</head>
+<body ng-app>
+  <div class="shelem" ng-controller="ShelemCtrl">
+    <header>
+      <div>Team A</div>
+      <div>Team B</div>
+    </header>
+    <div class="rounds">
+      <div class="round" ng-repeat="round in rounds">
+        <div>{{round.a.score}}</div>
+        <div>{{round.b.score}}</div>
+      </div>
+    </div>
+    <div class="calls" ng-hide="teamWhoCalled">
+      <form action="#" ng-submit="call('a')">
+        <input type="text" placeholder="Enter call of Team A" ng-model="callA">
+      </form>
+      <form action="#" ng-submit="call('b')">
+        <input type="text" placeholder="Enter call of Team B" ng-model="callB">
+      </form>
+    </div>
+    <div class="results" ng-hide="!teamWhoCalled">
+      <form action="#" ng-submit="submit('a')">
+        <input type="text" ng-model="submitA" ng-hide="teamWhoCalled.team !== 'b'" placeholder="Points Team A collected">
+        <div class="called"  ng-if="teamWhoCalled.team === 'a'">Team A called for {{teamWhoCalled.points}}</div>
+      </form>
+      <form action="#" ng-submit="submit('b')">
+        <input type="text" ng-model="submitB" ng-hide="teamWhoCalled.team !== 'a'" placeholder="Points Team B collected">
+        <div class="called"  ng-if="teamWhoCalled.team === 'b'">Team B called for {{teamWhoCalled.points}}</div>
+      </form>
+    </div>
+    <footer>
+       <div class="teams">
+         <div>{{getTotal('a')}}</div>
+         <div>{{getTotal('b')}}</div>
+       </div>
+    </footer>
+  </div>
+  <script>
+    function ShelemCtrl($scope){
+      $scope.teamWhoCalled = null;
+      $scope.rounds = [];
+
+      function reset(){
+        $scope.teamWhoCalled = null;
+        $scope.callA = $scope.callB =
+        $scope.submitA = $scope.submitB = '';
+      }
+
+      $scope.getTotal = function(team){
+        return $scope.rounds.reduce(function(score, round){
+          return score + round[team].score;
+        }, 0);
+      };
+
+      $scope.call = function(team){
+        var points = parseInt(team == 'a' ? $scope.callA : $scope.callB, 10);
+        if (Number.isNaN(points) || (points > 165 || points < 100 || points % 5 !== 0)) {
+          return alert('Invalid Call');
+        }
+        $scope.teamWhoCalled = { team: team, points: points };
+      };
+
+      $scope.submit = function(team){
+        var round, score;
+        var submitted = parseInt(team == 'a' ? $scope.submitA : $scope.submitB, 10);
+        if(isNaN(submitted) || submitted > 165 || submitted < 0 || submitted % 5 !== 0) {
+          return alert('Invalid number');
+        }
+        score = 165 - submitted;
+        if(score < $scope.teamWhoCalled.points){
+          score = -$scope.teamWhoCalled.points;
+        }
+        if(team == 'b'){
+          round = { a: {score: score}, b: {score: submitted} };
+        } else {
+          round = { a: {score: submitted}, b: {score: score} };
+        }
+        $scope.rounds.push(round);
+        reset();
+      };
+    }
+  </script>
+</body>
+</html>
