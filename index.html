@@ -85,20 +85,20 @@
       </div>
     </div>
     <div class="calls" ng-hide="teamWhoCalled">
-      <form action="#" ng-submit="call('a')">
-        <input type="text" placeholder="Enter call of Team A" ng-model="callA">
+      <form ng-submit="call('a')">
+        <input type="number" placeholder="Enter call of Team A" ng-model="callA">
       </form>
-      <form action="#" ng-submit="call('b')">
-        <input type="text" placeholder="Enter call of Team B" ng-model="callB">
+      <form ng-submit="call('b')">
+        <input type="number" placeholder="Enter call of Team B" ng-model="callB">
       </form>
     </div>
     <div class="results" ng-hide="!teamWhoCalled">
-      <form action="#" ng-submit="submit('a')">
-        <input type="text" ng-model="submitA" ng-hide="teamWhoCalled.team !== 'b'" placeholder="Points Team A collected">
+      <form ng-submit="submit('a')">
+        <input type="number" ng-model="submitA" ng-hide="teamWhoCalled.team !== 'b'" placeholder="Points Team A collected">
         <div class="called"  ng-if="teamWhoCalled.team === 'a'">Team A called for {{teamWhoCalled.points}}</div>
       </form>
-      <form action="#" ng-submit="submit('b')">
-        <input type="text" ng-model="submitB" ng-hide="teamWhoCalled.team !== 'a'" placeholder="Points Team B collected">
+      <form ng-submit="submit('b')">
+        <input type="number" ng-model="submitB" ng-hide="teamWhoCalled.team !== 'a'" placeholder="Points Team B collected">
         <div class="called"  ng-if="teamWhoCalled.team === 'b'">Team B called for {{teamWhoCalled.points}}</div>
       </form>
     </div>
