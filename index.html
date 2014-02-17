@@ -61,11 +61,12 @@
       display: flex;
       width: 100%;
     }
-    button.submit {
+    div.submit {
       display: inline-block;
       min-width: 4em;
       border: 1px solid transparent;
       padding: .4em;
+      background: #C2C2C2;
     }
     .shelem footer {
       background: #eee;
@@ -95,50 +96,49 @@
         <div>{{round.b.score}}</div>
       </div>
     </div>
-    <div class="calls" ng-hide="teamWhoCalled">
+    <div class="calls" ng-hide="caller">
       <form ng-submit="call('a')">
         <div class="input-wrapper">
           <input type="number" min="100" max="165" step="5" placeholder="Enter call of Team A" ng-model="callA">
         </div>
-        <button class='submit' ng-click="call('a')">Call</button>
+        <div class='submit' ng-click="call('a')">Call</div>
       </form>
       <form ng-submit="call('b')">
         <div class="input-wrapper">
           <input type="number" min="100" max="165" step="5" placeholder="Enter call of Team B" ng-model="callB">
         </div>
-        <button class='submit' ng-click="call('b')">Call</button>
+        <div class='submit' ng-click="call('b')">Call</div>
       </form>
     </div>
-    <div class="results" ng-hide="!teamWhoCalled">
+    <div class="results" ng-hide="!caller">
       <form ng-submit="submit('a')">
         <div class="input-wrapper">
-          <input type="number" min="0" max="165" step="5" ng-model="submitA" ng-hide="teamWhoCalled.team !== 'b'" placeholder="Points Team A collected">
+          <input type="number" min="0" max="165" step="5" ng-model="submitA" ng-hide="caller.team !== 'b'" placeholder="Points Team A collected">
         </div>
-        <button class="submit" ng-hide="teamWhoCalled.team === 'a'" ng-click="submit('a')">Submit</button>
-        <div class="called"  ng-if="teamWhoCalled.team === 'a'">Team A called for {{teamWhoCalled.points}}</div>
+        <div class="submit" ng-hide="caller.team === 'a'" ng-click="submit('a')">Submit</div>
+        <div class="called"  ng-if="caller.team === 'a'">Team A called for {{caller.points}}</div>
       </form>
       <form ng-submit="submit('b')">
         <div class="input-wrapper">
-          <input type="number" min="0" max="165" step="5" ng-model="submitB" ng-hide="teamWhoCalled.team !== 'a'" placeholder="Points Team B collected">
+          <input type="number" min="0" max="165" step="5" ng-model="submitB" ng-hide="caller.team !== 'a'" placeholder="Points Team B collected">
         </div>
-        <button class="submit" ng-hide="teamWhoCalled.team === 'b'" ng-click="submit('b')">Submit</button>
-        <div class="called"  ng-if="teamWhoCalled.team === 'b'">Team B called for {{teamWhoCalled.points}}</div>
+        <div class="submit" ng-hide="caller.team === 'b'" ng-click="submit('b')">Submit</div>
+        <div class="called"  ng-if="caller.team === 'b'">Team B called for {{caller.points}}</div>
       </form>
     </div>
     <footer>
        <div class="teams">
-         <div>{{getTotal('a')}}</div>
-         <div>{{getTotal('b')}}</div>
+         <div>{{getTotal('a')}}</div><div>{{getTotal('b')}}</div>
        </div>
     </footer>
   </div>
   <script>
     function ShelemCtrl($scope){
-      $scope.teamWhoCalled = null;
+      $scope.caller = null;
       $scope.rounds = [];
 
       function reset(){
-        $scope.teamWhoCalled = null;
+        $scope.caller = null;
         $scope.callA = $scope.callB =
         $scope.submitA = $scope.submitB = '';
       }
@@ -154,7 +154,7 @@
         if (Number.isNaN(points) || (points > 165 || points < 100 || points % 5 !== 0)) {
           return alert('Invalid Call');
         }
-        $scope.teamWhoCalled = { team: team, points: points };
+        $scope.caller = { team: team, points: points };
       };
 
       $scope.submit = function(team){
@@ -164,8 +164,8 @@
           return alert('Invalid number');
         }
         score = 165 - submitted;
-        if(score < $scope.teamWhoCalled.points){
-          score = -$scope.teamWhoCalled.points;
+        if(score < $scope.caller.points){
+          score = -$scope.caller.points;
         }
         if(team == 'b'){
           round = { a: {score: score}, b: {score: submitted} };
