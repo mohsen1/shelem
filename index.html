@@ -29,6 +29,10 @@
       flex: 1;
       text-align: center;
     }
+    .shelem header input {
+      margin: 0;
+      line-height: 1;
+    }
     .shelem .rounds {
       display: block;
     }
@@ -96,8 +100,16 @@
 <body ng-app>
   <div class="shelem" ng-controller="ShelemCtrl">
     <header>
-      <div>Team A</div>
-      <div>Team B</div>
+      <div ng-click="startEditingTeamName('a', $event)">
+        <input ng-show="isEditingTeam.a" type="text" ng-model="teamAName"
+          ng-blur="endEditingTeamName('a')">
+        <span ng-hide="isEditingTeam.a">{{teamAName}}</span>
+      </div>
+      <div ng-click="startEditingTeamName('b', $event)">
+        <input ng-show="isEditingTeam.b" type="text" ng-model="teamBName"
+          ng-blur="endEditingTeamName('b')">
+        <span ng-hide="isEditingTeam.b">{{teamBName}}</span>
+      </div>
     </header>
     <div class="rounds">
       <div class="round" ng-repeat="round in rounds">
@@ -146,6 +158,12 @@
     function ShelemCtrl($scope){
       $scope.caller = null;
       $scope.rounds = [];
+      $scope.teamAName = 'Team A';
+      $scope.teamBName = 'Team B';
+      $scope.isEditingTeam = {
+        a: false,
+        b: false
+      };
 
       function reset(){
         $scope.caller = null;
@@ -184,6 +202,14 @@
         }
         $scope.rounds.push(round);
         reset();
+      };
+
+      $scope.startEditingTeamName = function(team, event){
+        $scope.isEditingTeam[team] = true;
+      };
+
+      $scope.endEditingTeamName = function(team){
+        $scope.isEditingTeam[team] = false;
       };
     }
   </script>
