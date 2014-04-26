@@ -18,12 +18,14 @@
       height: 100vh;
     }
     .shelem header {
+      display: -webkit-flex;
       display: flex;
       background: gray;
       color: white;
       padding: .2em;
     }
     .shelem header > div {
+      -webkit-flex: 1;
       flex: 1;
       text-align: center;
     }
@@ -31,20 +33,24 @@
       display: block;
     }
     .shelem .rounds .round {
+      display: -webkit-flex;
       display: flex;
       padding: .3em;
     }
     .shelem .rounds .round div {
+      -webkit-flex: 1;
       flex: 1;
       text-align: center;
     }
     .shelem .calls,
     .shelem .results {
       padding-bottom: 2em;
+      display: -webkit-flex;
       display: flex;
     }
     .shelem .calls form,
     .shelem .results form {
+      -webkit-flex: 1;
       flex: 1;
       text-align: center;
     }
@@ -58,6 +64,7 @@
       padding: .5em;
     }
     .input-wrapper {
+      display: -webkit-flex;
       display: flex;
       width: 100%;
     }
@@ -77,9 +84,11 @@
     }
     .shelem footer .teams {
       padding: .3em;
+      display: -webkit-flex;
       display: flex;
     }
     .shelem footer .teams div {
+      -webkit-flex: 1;
       flex: 1;
     }
   </style>
@@ -99,13 +108,13 @@
     <div class="calls" ng-hide="caller">
       <form ng-submit="call('a')">
         <div class="input-wrapper">
-          <input type="number" min="100" max="165" step="5" placeholder="Enter call of Team A" ng-model="callA">
+          <input type="number" inputmode="numeric" pattern="[0-9]*" min="100" max="165" step="5" placeholder="Enter call of Team A" ng-model="callA">
         </div>
         <div class='submit' ng-click="call('a')">Call</div>
       </form>
       <form ng-submit="call('b')">
         <div class="input-wrapper">
-          <input type="number" min="100" max="165" step="5" placeholder="Enter call of Team B" ng-model="callB">
+          <input type="number" inputmode="numeric" pattern="[0-9]*" min="100" max="165" step="5" placeholder="Enter call of Team B" ng-model="callB">
         </div>
         <div class='submit' ng-click="call('b')">Call</div>
       </form>
@@ -113,14 +122,14 @@
     <div class="results" ng-hide="!caller">
       <form ng-submit="submit('a')">
         <div class="input-wrapper">
-          <input type="number" min="0" max="165" step="5" ng-model="submitA" ng-hide="caller.team !== 'b'" placeholder="Points Team A collected">
+          <input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="165" step="5" ng-model="submitA" ng-hide="caller.team !== 'b'" placeholder="Points Team A collected">
         </div>
         <div class="submit" ng-hide="caller.team === 'a'" ng-click="submit('a')">Submit</div>
         <div class="called"  ng-if="caller.team === 'a'">Team A called for {{caller.points}}</div>
       </form>
       <form ng-submit="submit('b')">
         <div class="input-wrapper">
-          <input type="number" min="0" max="165" step="5" ng-model="submitB" ng-hide="caller.team !== 'a'" placeholder="Points Team B collected">
+          <input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="165" step="5" ng-model="submitB" ng-hide="caller.team !== 'a'" placeholder="Points Team B collected">
         </div>
         <div class="submit" ng-hide="caller.team === 'b'" ng-click="submit('b')">Submit</div>
         <div class="called"  ng-if="caller.team === 'b'">Team B called for {{caller.points}}</div>
@@ -133,6 +142,7 @@
     </footer>
   </div>
   <script>
+
     function ShelemCtrl($scope){
       $scope.caller = null;
       $scope.rounds = [];
@@ -151,7 +161,7 @@
 
       $scope.call = function(team){
         var points = parseInt(team == 'a' ? $scope.callA : $scope.callB, 10);
-        if (Number.isNaN(points) || (points > 165 || points < 100 || points % 5 !== 0)) {
+        if (isNaN(points) || (points > 165 || points < 100 || points % 5 !== 0)) {
           return alert('Invalid Call');
         }
         $scope.caller = { team: team, points: points };
