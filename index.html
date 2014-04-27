@@ -28,6 +28,14 @@
       border-color: #eee;
       text-align: center;
     }
+    input.team-name {
+      background: none;
+      border: none;
+    }
+    input.team-name:focus{
+      outline: none;
+      background: white;
+    }
     .shelem {
       width: 100vw;
       height: 100vh;
@@ -115,15 +123,11 @@
 <body ng-app>
   <div class="shelem" ng-controller="ShelemCtrl">
     <header>
-      <div ng-click="startEditingTeamName('a', $event)">
-        <input ng-show="isEditingTeam.a" type="text" ng-model="teamAName"
-          ng-blur="endEditingTeamName('a')">
-        <span ng-hide="isEditingTeam.a">{{teamAName}}</span>
+      <div>
+        <input type="text" ng-model="teamAName" class="team-name">
       </div>
-      <div ng-click="startEditingTeamName('b', $event)">
-        <input ng-show="isEditingTeam.b" type="text" ng-model="teamBName"
-          ng-blur="endEditingTeamName('b')">
-        <span ng-hide="isEditingTeam.b">{{teamBName}}</span>
+      <div>
+        <input type="text" ng-model="teamBName" class="team-name">
       </div>
     </header>
     <div class="rounds">
@@ -135,13 +139,13 @@
     <div class="calls" ng-hide="caller">
       <form ng-submit="call('a')">
         <div class="input-wrapper">
-          <input type="number" inputmode="numeric" pattern="[0-9]*" min="100" max="165" step="5" placeholder="Enter call of Team A" ng-model="callA">
+          <input type="number" inputmode="numeric" pattern="[0-9]*" min="100" max="165" step="5" placeholder="Enter call of {{teamAName}}" ng-model="callA">
         </div>
         <div class='submit' ng-click="call('a')">Call</div>
       </form>
       <form ng-submit="call('b')">
         <div class="input-wrapper">
-          <input type="number" inputmode="numeric" pattern="[0-9]*" min="100" max="165" step="5" placeholder="Enter call of Team B" ng-model="callB">
+          <input type="number" inputmode="numeric" pattern="[0-9]*" min="100" max="165" step="5" placeholder="Enter call of {{teamBName}}" ng-model="callB">
         </div>
         <div class='submit' ng-click="call('b')">Call</div>
       </form>
@@ -149,17 +153,17 @@
     <div class="results" ng-hide="!caller">
       <form ng-submit="submit('a')">
         <div class="input-wrapper">
-          <input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="165" step="5" ng-model="submitA" ng-hide="caller.team !== 'b'" placeholder="Points Team A collected">
+          <input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="165" step="5" ng-model="submitA" ng-hide="caller.team !== 'b'" placeholder="Points {{teamAName}} collected">
         </div>
         <div class="submit" ng-hide="caller.team === 'a'" ng-click="submit('a')">Submit</div>
-        <div class="called"  ng-if="caller.team === 'a'">Team A called for {{caller.points}}</div>
+        <div class="called"  ng-if="caller.team === 'a'">{{teamAName}} called for {{caller.points}}</div>
       </form>
       <form ng-submit="submit('b')">
         <div class="input-wrapper">
-          <input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="165" step="5" ng-model="submitB" ng-hide="caller.team !== 'a'" placeholder="Points Team B collected">
+          <input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="165" step="5" ng-model="submitB" ng-hide="caller.team !== 'a'" placeholder="Points {{teamBName}} collected">
         </div>
         <div class="submit" ng-hide="caller.team === 'b'" ng-click="submit('b')">Submit</div>
-        <div class="called"  ng-if="caller.team === 'b'">Team B called for {{caller.points}}</div>
+        <div class="called"  ng-if="caller.team === 'b'">{{teamBName}} called for {{caller.points}}</div>
       </form>
     </div>
     <footer>
@@ -175,10 +179,6 @@
       $scope.rounds = [];
       $scope.teamAName = 'Team A';
       $scope.teamBName = 'Team B';
-      $scope.isEditingTeam = {
-        a: false,
-        b: false
-      };
 
       function reset(){
         $scope.caller = null;
@@ -217,14 +217,6 @@
         }
         $scope.rounds.push(round);
         reset();
-      };
-
-      $scope.startEditingTeamName = function(team, event){
-        $scope.isEditingTeam[team] = true;
-      };
-
-      $scope.endEditingTeamName = function(team){
-        $scope.isEditingTeam[team] = false;
       };
     }
   </script>
