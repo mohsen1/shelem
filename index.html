@@ -39,6 +39,7 @@
     .shelem {
       width: 100vw;
       height: 100vh;
+      font-size: 0.85em;
     }
     .shelem header {
       display: -webkit-flex;
@@ -63,11 +64,30 @@
       display: -webkit-flex;
       display: flex;
       padding: .3em;
+      position: relative;
+    }
+    .shelem .rounds .round.highlighted {
+      background: #eee;
     }
     .shelem .rounds .round div {
       -webkit-flex: 1;
       flex: 1;
       text-align: center;
+    }
+    .shelem .rounds .round .delete{
+      position: absolute;
+      background: #AF400C;
+      color: #FFF;
+      top: 50%;
+      right: 1em;
+      height: 2em;
+      margin-top: -1em;
+      border: none;
+      line-height: 1;
+      width: 5em;
+      display: none;
+      text-align: center;
+      padding: 0;
     }
     .shelem .calls,
     .shelem .results {
@@ -120,7 +140,7 @@
     }
   </style>
 </head>
-<body ng-app>
+<body ng-app="Shelem">
   <div class="shelem" ng-controller="ShelemCtrl">
     <header>
       <div>
@@ -131,21 +151,20 @@
       </div>
     </header>
     <div class="rounds">
-      <div class="round" ng-repeat="round in rounds">
-        <div>{{round.a.score}}</div>
-        <div>{{round.b.score}}</div>
-      </div>
+      <round-row ng-repeat="round in rounds" round="round"></round-row>
     </div>
     <div class="calls" ng-hide="caller">
       <form ng-submit="call('a')">
         <div class="input-wrapper">
-          <input type="number" inputmode="numeric" pattern="[0-9]*" min="100" max="165" step="5" placeholder="Enter call of {{teamAName}}" ng-model="callA">
+          <input type="number" inputmode="numeric" pattern="[0-9]*" min="100"
+            max="165" step="5" placeholder="Enter call of {{teamAName}}" ng-model="callA">
         </div>
         <div class='submit' ng-click="call('a')">Call</div>
       </form>
       <form ng-submit="call('b')">
         <div class="input-wrapper">
-          <input type="number" inputmode="numeric" pattern="[0-9]*" min="100" max="165" step="5" placeholder="Enter call of {{teamBName}}" ng-model="callB">
+          <input type="number" inputmode="numeric" pattern="[0-9]*" min="100"
+            max="165" step="5" placeholder="Enter call of {{teamBName}}" ng-model="callB">
         </div>
         <div class='submit' ng-click="call('b')">Call</div>
       </form>
@@ -153,14 +172,16 @@
     <div class="results" ng-hide="!caller">
       <form ng-submit="submit('a')">
         <div class="input-wrapper">
-          <input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="165" step="5" ng-model="submitA" ng-hide="caller.team !== 'b'" placeholder="Points {{teamAName}} collected">
+          <input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="165" step="5"
+            ng-model="submitA" ng-hide="caller.team !== 'b'" placeholder="Points {{teamAName}} collected">
         </div>
         <div class="submit" ng-hide="caller.team === 'a'" ng-click="submit('a')">Submit</div>
         <div class="called"  ng-if="caller.team === 'a'">{{teamAName}} called for {{caller.points}}</div>
       </form>
       <form ng-submit="submit('b')">
         <div class="input-wrapper">
-          <input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="165" step="5" ng-model="submitB" ng-hide="caller.team !== 'a'" placeholder="Points {{teamBName}} collected">
+          <input type="number" inputmode="numeric" pattern="[0-9]*" min="0" max="165" step="5"
+          ng-model="submitB" ng-hide="caller.team !== 'a'" placeholder="Points {{teamBName}} collected">
         </div>
         <div class="submit" ng-hide="caller.team === 'b'" ng-click="submit('b')">Submit</div>
         <div class="called"  ng-if="caller.team === 'b'">{{teamBName}} called for {{caller.points}}</div>
@@ -173,8 +194,53 @@
     </footer>
   </div>
   <script>
+    Array.prototype.remove = function(from, to) {
+      var rest = this.slice((to || from) + 1 || this.length);
+      this.length = from < 0 ? this.length + from : from;
+      return this.push.apply(this, rest);
+    };
+  </script>
+  <script>
 
-    function ShelemCtrl($scope){
+  angular.module('Shelem', [])
+  .directive('roundRow', function() {
+    var template = ''+
+      '<div class="round" ng-click="highlightRound(round)" ng-class="{highlighted: round.highlighted}">' +
+        '<div>{{round.a.score}}</div>' +
+        '<div>{{round.b.score}}</div>' +
+        '<button class="delete" ng-click="deleteRound(round)">×</button>' +
+      '</div>';
+    return {
+      restrict: 'E',
+      attributes: {
+        round: '='
+      },
+      template: template,
+      link: function(scope, elemt, attr, ctrl){
+        var startPoint = {};
+        var deleteButton;
+        elemt.bind('touchstart',function(event){
+          startPoint.x = event.touches[0].pageX;
+        });
+        elemt.bind('touchmove', function(event){
+          var dx = startPoint.x - event.touches[0].pageX;
+          deleteButton = this.querySelector('button');
+          deleteButton.style.display = 'block';
+          if(dx < 80)
+            deleteButton.style.width = dx + 'px';
+        });
+        function dismissDelete(event){
+          if(deleteButton && event.target !== deleteButton){
+            deleteButton.style.display = 'none';
+            deleteButton = null;
+            document.removeEventListener('touchstart', dismissDelete);
+          }
+        }
+        document.addEventListener('touchstart', dismissDelete, false);
+      }
+    };
+  })
+  .controller('ShelemCtrl', ['$scope', function ShelemCtrl($scope){
       $scope.caller = null;
       $scope.rounds = [];
       $scope.teamAName = 'Team A';
@@ -218,17 +284,31 @@
         $scope.rounds.push(round);
         reset();
       };
-    }
+
+      $scope.highlightRound = function(round){
+        $scope.rounds.forEach(function(r){ r.highlighted = false; });
+        round.highlighted = true;
+      };
+
+      $scope.deleteRound = function(round){
+        $scope.rounds.remove($scope.rounds.indexOf(round));
+      }
+
+      $scope.roundTouchStartListener = function(event){
+        console.log(evnet);
+      }
+    }]);
+
   </script>
   <script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
     (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
     m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  
+
     ga('create', 'UA-50405884-1', 'mohsenweb.com');
     ga('send', 'pageview');
-  
+
   </script>
 </body>
 </html>
